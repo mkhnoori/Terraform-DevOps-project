@@ -2,12 +2,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: prime-service
+  name: pandacloud-app
+  labels:
+    app: pandacloud-app
 spec:
-  selector:
-    app: prime
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
-  type: NodePort
+  - name: http
+    port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: pandacloud-app
+  type: LoadBalancer
+...
