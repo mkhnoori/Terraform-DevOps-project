@@ -6,21 +6,12 @@ WORKDIR /app
 
 # Copy dependency files
 COPY ./package.json .
-COPY ./yarn.lock .
 
-# Install dependencies
-RUN yarn install
-
-# Copy the application source code
-COPY . .
 
 # Accept the TMDB API key as a build argument and set it as an environment variable
 ARG TMDB_V3_API_KEY
 ENV VITE_APP_TMDB_V3_API_KEY=${TMDB_V3_API_KEY}
 ENV VITE_APP_API_ENDPOINT_URL="https://api.themoviedb.org/3"
-
-# Build the application
-RUN yarn build
 
 # Stage 2: Minimal node server to serve the app (no Nginx)
 FROM node:16.17.0-alpine
