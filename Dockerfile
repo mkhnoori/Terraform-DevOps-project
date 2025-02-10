@@ -1,37 +1,26 @@
-# Stage 1: Build the application using Node.js
-FROM node:16-alpine AS builder
+# Use Node.js Alpine base image
+FROM node:alpine
 
-# Set the working directory inside the container
+# Create and set the working directory inside the container
 WORKDIR /app
 
-# Copy dependency files
-COPY package.json package-lock.json ./
+# Pass the API key as a build argument
+ARG TMDB_V3_API_KEY
+ENV VITE_APP_TMDB_V3_API_KEY=a806b329b0aabede475d9fe0c40410e9
+ENV VITE_APP_API_ENDPOINT_URL="https://api.themoviedb.org/3"
+# Copy package.json and package-lock.json to the working directory
+COPY package.json package-lock.json /app/
 
-# Install dependencies using npm
+# Install dependencies
 RUN npm install
 
-# Copy the application code
-COPY . .
+# Copy the entire codebase to the working directory
+COPY . /app/
 
-# Build the application (if needed, like React or Vite apps)
-RUN npm run build
+# Expose the port your container app
+EXPOSE 3000    
 
-# Stage 2: Production image using lightweight Nginx
-FROM nginx:stable-alpine
-
-# Remove default Nginx static files
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built application from the builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom Nginx configuration (if needed)
-# COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose the application port
-EXPOSE 80
-
-# Start Nginx in foreground
-CMD ["nginx", "-g", "daemon off;"]
+# Define the command to start your application (replace "start" with the actual command to start your app)
+CMD ["npm", "start"]
 
 
