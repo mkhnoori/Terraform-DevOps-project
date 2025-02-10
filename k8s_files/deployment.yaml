@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: pandacloud-container
-        image: mkhnoori1/prime
+        image: mkhnoori1/prime:latest
         ports:
         - containerPort: 3000
 ...
