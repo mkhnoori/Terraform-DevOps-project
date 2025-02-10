@@ -1,33 +1,37 @@
-# Stage 1: Build the application
-FROM node:16.17.0-alpine as builder
+# Stage 1: Build the application using Node.js
+FROM node:16-alpine AS builder
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
 # Copy dependency files
-COPY ./package.json .
+COPY package.json package-lock.json ./
 
+# Install dependencies using npm
+RUN npm install
 
-# Accept the TMDB API key as a build argument and set it as an environment variable
-ARG TMDB_V3_API_KEY
-ENV VITE_APP_TMDB_V3_API_KEY=${TMDB_V3_API_KEY}
-ENV VITE_APP_API_ENDPOINT_URL="https://api.themoviedb.org/3"
+# Copy the application code
+COPY . .
 
-# Stage 2: Minimal node server to serve the app (no Nginx)
-FROM node:16.17.0-alpine
+# Build the application (if needed, like React or Vite apps)
+RUN npm run build
 
-# Set working directory in the final container
-WORKDIR /usr/src/app
+# Stage 2: Production image using lightweight Nginx
+FROM nginx:stable-alpine
 
-# Copy the built app from the builder stage
-COPY --from=builder /app/dist .
+# Remove default Nginx static files
+RUN rm -rf /usr/share/nginx/html/*
 
-# Install a minimal HTTP server to serve static files
-RUN npm install -g serve
+# Copy built application from the builder stage
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 3000
-EXPOSE 3000
+# Copy custom Nginx configuration (if needed)
+# COPY nginx.conf /etc/nginx/nginx.conf
 
-# Serve the app using a simple HTTP server
-CMD ["serve", "-s", ".", "-l", "3000"]
+# Expose the application port
+EXPOSE 80
+
+# Start Nginx in foreground
+CMD ["nginx", "-g", "daemon off;"]
+
 
